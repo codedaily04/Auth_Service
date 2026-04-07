@@ -2,6 +2,9 @@
 const {
   Model
 } = require('sequelize');
+
+const {SALT}=require('../config/serverConfig');
+const bcrypt=require('bcrypt');
 module.exports = (sequelize, DataTypes) => {
   class User extends Model {
     /**
@@ -26,12 +29,17 @@ module.exports = (sequelize, DataTypes) => {
       type:DataTypes.STRING,
       allowNull:false,
       validate:{
-        len:[3,30]
+        len:[3,300]
       }
     }
   }, {
     sequelize,
     modelName: 'User',
+  });
+  //Setting up Triggers
+  User.beforeCreate((user)=>{
+    const encryptedPassword=bcrypt.hashSync(user.password,SALT);
+    user.password=encryptedPassword;
   });
   return User;
 };
