@@ -18,6 +18,28 @@ class UserService{
             throw error;
         }
     }
+
+    //for plain sign in process
+    async signIn(email,plainpassword){
+        try {
+            // step 1: fetch the user by email from database
+            const user= await this.userRepository.getByEmail(email);
+            //step 2: compare the password
+            const passwordMatch=this.checkPassword(plainpassword,user.password);
+            if(!passwordMatch){
+                console.log('Password does not match');
+                throw {error:'Incorrect Password'};
+            }
+            //step 3: if password matches then create a token and send to user
+            const newJWT=this.createToken({email:user.email,id:user.id});
+            return newJWT;
+        } catch (error) {
+            console.log('Something is wrong is User-repo layer');
+            throw error;
+        }
+    }
+
+
     //Creating  a function for jwt tokens
     createToken(user){
         try {
@@ -47,6 +69,7 @@ class UserService{
             throw error;
         }
     }   
+    //encrypting the password will get from repository layer
 
 }
 
