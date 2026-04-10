@@ -6,6 +6,7 @@ const {PORT}=require('./config/serverConfig');
 const ApiRoutes=require('./routes/index');
 const bodyParser = require('body-parser');
 
+const db = require('./models/index');
 
 const prepareAndStartServer=()=>{
 
@@ -16,6 +17,13 @@ const prepareAndStartServer=()=>{
 
     app.listen(PORT,async ()=>{
         console.log(`Server is running on port ${PORT}`);
+        if(process.env.DB_SYNC){
+             db.sequelize.sync({alter:true});
+        }
+        // const u1= await User.findByPk(4);
+        // const r1=await Role.findByPk(2);
+        // u1.addRole(r1);
+
     });
 }
 
