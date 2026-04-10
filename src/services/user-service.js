@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt=require('bcrypt');
 
 const UserRepository=require('../repository/user-repository');
-const {JWT_Key}=require('../config/serverConfig');
+const {JWT_KEY}=require('../config/serverConfig');
 
 class UserService{
     constructor(){
@@ -39,11 +39,29 @@ class UserService{
         }
     }
 
+    //If the JWT token is valid for 1 day but user have already deleted the account within 1 day then what will happen to the JWT token
+    async isAuthenticated(token){
+        try {
+            const reponse=this.verifyToken(token);
+            if(!reponse){
+                throw {error:'Invalid Token'};
+            }
+            const user=this.userRepository.getById(reponse.id);
+            if(!user){
+                throw {error:'No user found for this token'};
+            }
+            return user.id;
+        } catch (error) {
+            console.log('Something is wrong is User-repo layer');
+            throw error;
+        }
+    }
+
 
     //Creating  a function for jwt tokens
     createToken(user){
         try {
-            const result=jwt.sign(user,JWT_Key,{expiresIn:'1d'});
+            const result=jwt.sign(user,JWT_KEY,{expiresIn:'1d'});
             return result;
         } catch (error) {
             console.log('Something is wrong is Token creation');
@@ -53,7 +71,7 @@ class UserService{
     //This function is used to verify the token which is created by the createToken function
     verifyToken(token){
         try {
-            const response=jwt.verify(token,JWT_Key);
+            const response=jwt.verify(token,JWT_KEY);
             return response;
         } catch (error) {
             console.log('Something is wrong is Token verification');

@@ -1,5 +1,5 @@
 const UserService=require('../services/user-service');
-
+const {response}=require('express');
 const userservice=new UserService();
 
 const create=async (req,res)=>{
@@ -45,7 +45,29 @@ const create=async (req,res)=>{
         }
     }
 
+    const isAuthenticated=async (req,res)=>{
+        try {
+           const token=req.headers['x-access-token'];
+           const reponse = userservice.verifyToken(token);
+           return res.status(200).json({
+                message:"User is authenticated and token is valid",
+                success:true,
+                data:reponse,
+                err:{}
+            });
+        } catch (error) {
+            console.log(error);
+            return res.status(500).json({
+                message:"Something went wrong in the controller-layer",
+                data:{},
+                success:false,
+                err:error
+            });
+        }
+    }
+
 module.exports={
     create,
-    signin
+    signin,
+    isAuthenticated
 }
