@@ -89,6 +89,16 @@ class UserService{
     }   
     //encrypting the password will get from repository layer
 
+
+    isAdmin(userId){
+        try {
+            return this.userRepository.isAdmin(userId);
+        } catch (error) {
+            console.log('Something is wrong is Admin checking');
+            throw error;
+        }
+    }
+
 }
 
 module.exports=UserService;

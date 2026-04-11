@@ -66,8 +66,29 @@ const create=async (req,res)=>{
         }
     }
 
+const isAdmin=async (req,res)=>{
+    try {
+        const response = await userservice.isAdmin(req.body.id);
+        return res.status(200).json({
+            message:"User is Admin",
+            success:true,
+            data:response,
+            err:{}
+        });
+     } catch (error) {
+         console.log(error);
+         return res.status(500).json({
+             message:"Something went wrong in the controller-layer",
+             data:{},
+             success:false,
+             err:error
+         });
+     }
+}
+
 module.exports={
     create,
     signin,
-    isAuthenticated
+    isAuthenticated,
+    isAdmin
 }
