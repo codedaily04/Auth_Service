@@ -3,6 +3,7 @@ const bcrypt=require('bcrypt');
 
 const UserRepository=require('../repository/user-repository');
 const {JWT_KEY}=require('../config/serverConfig');
+const AppErrors=require('../utils/error-handler');
 
 class UserService{
     constructor(){
@@ -14,8 +15,16 @@ class UserService{
             const user=await this.userRepository.create(data);
             return user;
         } catch (error) {
+            if(error.name=='SequelizeValidationError') {
+                throw error;
+            }
             console.log('Something is wrong is User-repo layer');
-            throw error;
+            throw new AppErrors(
+                'ServiceError',
+                'Something went wrong in service',
+                error.message,
+                500
+            );
         }
     }
 
@@ -34,6 +43,9 @@ class UserService{
             const newJWT=this.createToken({email:user.email,id:user.id});
             return newJWT;
         } catch (error) {
+            if(error.name=='Attribute Not Found'){
+                
+            }
             console.log('Something is wrong is User-repo layer');
             throw error;
         }
@@ -42,11 +54,11 @@ class UserService{
     //If the JWT token is valid for 1 day but user have already deleted the account within 1 day then what will happen to the JWT token
     async isAuthenticated(token){
         try {
-            const reponse=this.verifyToken(token);
-            if(!reponse){
+            const response= await this.verifyToken(token);
+            if(!response){
                 throw {error:'Invalid Token'};
             }
-            const user= await this.userRepository.getById(reponse.id);
+            const user= await this.userRepository.getById(response.id);
             if(!user){
                 throw {error:'No user found for this token'};
             }

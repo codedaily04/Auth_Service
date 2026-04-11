@@ -2,6 +2,7 @@ const UserService=require('../services/user-service');
 const {response}=require('express');
 const userservice=new UserService();
 
+
 const create=async (req,res)=>{
     try {
         const response=await userservice.create({
@@ -16,12 +17,12 @@ const create=async (req,res)=>{
         })
     } catch (error) {
         console.log(error);
-        return res.status(500),json({
-            message:"Something went wrong in the controller-layer",
+        return res.status(error.statusCode).json({
+            message:error.message,
             data:{},
             success:false,
-            err:error
-        })
+            err:error.explanation
+        });
     }
 }
 
@@ -36,11 +37,11 @@ const create=async (req,res)=>{
             });
         } catch (error) {
             console.log(error);
-            return res.status(500).json({
-                message:"Something went wrong in the controller-layer",
+            return res.status(error.statusCode).json({
+                message:error.message,
                 data:{},
                 success:false,
-                err:error
+                err:error.explanation
             });
         }
     }
@@ -48,11 +49,11 @@ const create=async (req,res)=>{
     const isAuthenticated=async (req,res)=>{
         try {
            const token=req.headers['x-access-token'];
-           const reponse = userservice.verifyToken(token);
+           const response = userservice.verifyToken(token);
            return res.status(200).json({
                 message:"User is authenticated and token is valid",
                 success:true,
-                data:reponse,
+                data:response,
                 err:{}
             });
         } catch (error) {
